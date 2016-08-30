@@ -1,0 +1,29 @@
+{% extends "pure/layout.html" %}
+{% block title %}OJ Html to Markdown{% endblock %}
+
+{% block style %}
+{{super()}}
+<link rel="stylesheet"
+      href="{{url_for('.static', filename='style.css')}}">
+{% endblock %}
+
+{% block content %}
+<div class="document">
+  <div class="container">
+    <div class="center">
+      <h2>Input URL here</h2>
+      <form class="pure-form" method="POST" action="/">
+        {{ form.csrf_token }}
+        {{ form.url(class="pure-input-1-2", placeholder="Input URL here") }}
+        <button type="submit" class="pure-button">Go</button>
+      </form>
+    </div>
+
+    {% if markdown %}
+    <div class="markdown">
+      <p><pre>{{ markdown }}</pre></p>
+    {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

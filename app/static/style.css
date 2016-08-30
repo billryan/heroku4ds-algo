@@ -1,0 +1,19 @@
+.document {
+  margin: auto;
+  width: 75%;
+}
+
+.container {
+  margin: 130px 50px;
+  padding: 1em;
+}
+
+.center {
+	text-align: center;
+}
+
+.markdown {
+	background-color: #e5e5e5;
+	margin: 20px 0px;
+	padding: 2em;
+}

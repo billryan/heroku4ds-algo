@@ -1,12 +1,10 @@
 import os
 from flask import Flask
 from flask_pure import Pure
-from flask_misaka import Misaka
 
 app = Flask(__name__)
 app.config.from_object('config')
 Pure(app)
-Misaka(app)
 
 if not app.debug and os.environ.get('HEROKU') is None:
     import logging

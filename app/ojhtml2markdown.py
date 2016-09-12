@@ -122,12 +122,13 @@ class OJHtml2Markdown(object):
         p_difficulty = self._run_method('_get_p_difficulty_')
         raw_p_tags = self._run_method('_get_p_tags_')
         raw_p_tags.append(p_difficulty)
-        p_tags = [tag.replace(' ', '_') for tag in raw_p_tags]
+        # p_tags = [tag.replace(' ', '_') for tag in raw_p_tags]
+        p_tags = raw_p_tags
         # markdown output
         lines = []
         lines.append('# {}\n'.format(p_title))
-        tags = ' '.join(p_tags)
-        lines.append('TAGS: {}\n'.format(tags))
+        tags = ', '.join(p_tags)
+        lines.append('Tags: {}\n'.format(tags))
         lines.append('## Question\n')
         p_url_lists = self._gen_p_url_lists()
         lines.extend(p_url_lists)

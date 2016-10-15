@@ -100,8 +100,12 @@ class OJHtml2Markdown(object):
         return p_tags
 
     def _get_p_difficulty_leetcode(self):
-        difficulty_info = self._raw_p_html('.question-info.text-info')
-        return difficulty_info.text().split(' ')[-1]
+        difficulty_raw = self._raw_p_html('.question-info.text-info')
+        difficulty_ = difficulty_raw[0][0].text_content().split('\n')
+        for li in difficulty_:
+            if li.strip().startswith('Difficulty'):
+                difficulty = li.strip().split(' ')[-1]
+                return difficulty
 
     def _get_p_difficulty_lintcode(self):
         raw_d_info = self._raw_p_html('.progress.progress-xs.m-b').html()

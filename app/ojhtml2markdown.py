@@ -84,10 +84,10 @@ class OJHtml2Markdown(object):
         try:
             raw_tags = self._raw_p_html('.btn.btn-xs.btn-primary')
             for tag in raw_tags:
-                if tag.attrib['href'].startswith('/tag/'):
+                if tag.attrib.get('href') and tag.attrib['href'].startswith('/tag/'):
                     p_tags.append(tag.text)
         except Exception as err:
-            print('Error: ', err)
+            print('Error: %r' % err)
         return p_tags
 
     def _get_p_tags_lintcode(self):

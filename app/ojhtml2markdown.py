@@ -48,8 +48,6 @@ class OJHtml2Markdown(object):
                 site = url[key_end - 8:key_end]
                 self._p_urls[site] = url
         p_title = self._get_p_title()
-        if p_title.endswith('LeetCode'):
-            p_title = p_title[:len(p_title) - len('- LeetCode')].strip()
         p_url_lists = []
         for site in sorted(self._p_urls):
             p_list = '- {site}: [{title}]({url})'.format(
@@ -60,6 +58,8 @@ class OJHtml2Markdown(object):
     def _get_p_title(self):
         """Get problem title."""
         p_title = self._raw_p_html('title').text().split('|')[0].strip()
+        if p_title.endswith('LeetCode'):
+            p_title = p_title[:len(p_title) - len('- LeetCode')].strip()
         return p_title
 
     def _run_method(self, method):

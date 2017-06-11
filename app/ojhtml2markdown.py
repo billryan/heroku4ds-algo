@@ -100,7 +100,7 @@ class OJHtml2Markdown(object):
         return p_tags
 
     def _get_p_difficulty_leetcode(self):
-        difficulty_raw = self._raw_p_html('.question-info.text-info')
+        difficulty_raw = self._raw_p_html('.question-info')
         difficulty_ = difficulty_raw[0][0].text_content().split('\n')
         for li in difficulty_:
             if li.strip().startswith('Difficulty'):

@@ -6,6 +6,7 @@ from pyquery import PyQuery
 import requests
 import html2text
 
+from leetcode import Leetcode
 
 class OJHtml2Markdown(object):
     """Parse Leetcode/Lintcode html page to markdown."""
@@ -25,6 +26,7 @@ class OJHtml2Markdown(object):
 
         self._p_url_path = url.split('/')[-1]
         self._p_urls = {}
+        self.leetcode = Leetcode()
 
     def _lint2leet(self):
         """Replace lintcode with leetcode if prefer leetcode."""
@@ -35,19 +37,18 @@ class OJHtml2Markdown(object):
         if response.status_code == 200:
             self._site = 'leetcode'
             self._url = url
-            self._raw_p_html = PyQuery(url=self._url)
+            # self._raw_p_html = PyQuery(url=self._url)
 
-    def _gen_p_url_lists(self):
+    def _gen_p_url_lists(self, p_title):
         """Generate leetcode/lintcode problem url lists."""
         leetcode_url = 'https://leetcode.com/problems/{}/'.format(self._p_url_path)
-        lintcode_url = 'http://www.lintcode.com/en/problem/{}/'.format(self._p_url_path)
+        lintcode_url = 'https://www.lintcode.com/problem/{}/'.format(self._p_url_path)
         for url in [leetcode_url, lintcode_url]:
             response = requests.head(url)
             if response.status_code == 200:
                 key_end = url.find('.com/')
                 site = url[key_end - 8:key_end]
                 self._p_urls[site] = url
-        p_title = self._get_p_title()
         p_url_lists = []
         for site in sorted(self._p_urls):
             p_list = '- {site}: [{title}]({url})'.format(
@@ -67,66 +68,20 @@ class OJHtml2Markdown(object):
             method,
             self._site))()
 
-    def _get_p_html_body_leetcode(self):
-        """Get problem html body only."""
-        q_content_html = self._raw_p_html('.question-content').html()
-        p_body_start = q_content_html.find('<p>')
-        p_body_end = q_content_html.find('<div>')
-        p_body = q_content_html[p_body_start:p_body_end]
-        return p_body
-
-    def _get_p_html_body_lintcode(self):
-        q_content_html = self._raw_p_html('#description').html()
-        p_body_end = q_content_html.find('<b>Tags</b>')
-        p_body = q_content_html[:p_body_end]
-        return p_body
-
-    def _get_p_tags_leetcode(self):
-        p_tags = []
-        try:
-            raw_tags = self._raw_p_html('.btn.btn-xs.btn-primary')
-            for tag in raw_tags:
-                if tag.attrib.get('href') and tag.attrib['href'].startswith('/tag/'):
-                    p_tags.append(tag.text)
-        except Exception as err:
-            print('Error: %r' % err)
-        return p_tags
-
-    def _get_p_tags_lintcode(self):
-        p_tags = []
-        try:
-            raw_tags = self._raw_p_html('#description')('#tags')('a')
-            p_tags = [tag.text for tag in raw_tags]
-        except Exception as err:
-            print('Error: ', err)
-        return p_tags
-
-    def _get_p_difficulty_leetcode(self):
-        difficulty_raw = self._raw_p_html('.question-info')
-        difficulty_ = difficulty_raw[0][0].text_content().split('\n')
-        for li in difficulty_:
-            if li.strip().startswith('Difficulty'):
-                difficulty = li.strip().split(' ')[-1]
-                return difficulty
-
-    def _get_p_difficulty_lintcode(self):
-        raw_d_info = self._raw_p_html('.progress.progress-xs.m-b').html()
-        d_info = raw_d_info.split('"Difficulty')[1].strip().split(' ')[0]
-        return d_info
-
     def gen_markdown(self):
         """Generate markdown with problem html."""
         leet_url = self._url.startswith('https://leetcode.com/problems')
-        lint_url = self._url.startswith('http://www.lintcode.com/en/problem')
+        lint_url = self._url.startswith('https://www.lintcode.com/problem')
         if not (leet_url or lint_url):
             return self._markdown or 'Invalid URL!!!'
         h = html2text.HTML2Text()
         if self._prefer_leetcode:
             self._lint2leet()
-        p_title = self._get_p_title()
-        p_body = self._run_method('_get_p_html_body_')
-        p_difficulty = self._run_method('_get_p_difficulty_')
-        raw_p_tags = self._run_method('_get_p_tags_')
+        leetcode_data = self.leetcode.get_problem_raw(self._url)['data']['question']
+        p_title = leetcode_data['title']
+        p_body = leetcode_data['content']
+        p_difficulty = leetcode_data['difficulty']
+        raw_p_tags = [i['name'] for i in leetcode_data['topicTags']]
         raw_p_tags.append(p_difficulty)
         # p_tags = [tag.replace(' ', '_') for tag in raw_p_tags]
         p_tags = raw_p_tags
@@ -136,7 +91,7 @@ class OJHtml2Markdown(object):
         tags = ', '.join(p_tags)
         lines.append('Tags: {}\n'.format(tags))
         lines.append('## Question\n')
-        p_url_lists = self._gen_p_url_lists()
+        p_url_lists = self._gen_p_url_lists(p_title)
         lines.extend(p_url_lists)
         lines.append('\n### Problem Statement\n')
         lines.append(h.handle(p_body))

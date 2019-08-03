@@ -4,6 +4,9 @@ from flask_pure import Pure
 
 app = Flask(__name__)
 app.config.from_object('config')
+app.config['PURECSS_RESPONSIVE_GRIDS'] = True
+app.config['PURECSS_USE_CDN'] = True
+app.config['PURECSS_USE_MINIFIED'] = True
 Pure(app)
 
 if not app.debug and os.environ.get('HEROKU') is None:

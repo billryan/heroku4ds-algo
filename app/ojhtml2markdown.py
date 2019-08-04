@@ -6,7 +6,7 @@ from pyquery import PyQuery
 import requests
 import html2text
 
-from leetcode import Leetcode
+from .leetcode import Leetcode
 
 class OJHtml2Markdown(object):
     """Parse Leetcode/Lintcode html page to markdown."""
